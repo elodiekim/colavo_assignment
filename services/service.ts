@@ -5,18 +5,11 @@ import {
   Event,
   DayTimeTable,
   TimeSlot,
+  GetTimeSlotsParams,
 } from "../interface/interfaces";
 import fs from "fs";
 
-interface GetTimeSlotsParams {
-  startDayIdentifier: string;
-  days?: number;
-  serviceDuration: number;
-  timeSlotInterval: number;
-  isIgnoreSchedule?: boolean;
-  isIgnoreWorkhour?: boolean;
-  timezoneIdentifier: string;
-}
+//workHours 업무 시간을 나타내는 객체들로 이루어진 배열
 function generateTimeSlots(
   startOfDay: number,
   workHours: { [key: string]: WorkHour },
@@ -30,26 +23,27 @@ function generateTimeSlots(
   const dayWorkHours = Object.values(workHours).filter(
     (workHour) => workHour.weekday === weekday
   );
-
+  //객체의 값들만을 추출해서 배열에 넣음
   for (const workHour of dayWorkHours) {
     const openInterval = workHour.open_interval as [number, number];
     const closeInterval = workHour.close_interval as [number, number];
-
+    //배열의 첫 번째 값은 시간, 두 번째 값 분
     let currentTime = openInterval[0];
-
+    //workHour시작시간 openInterval[0]
     while (currentTime < closeInterval[0]) {
       const endTime = Math.min(
         currentTime + serviceDuration,
         closeInterval[0] - openInterval[0]
       );
-
+      //현재 시간에서 서비스시간만큼을 더한 값과 종료 시간 중, 더 빠른 시간
       const timeSlot = {
         begin_at: startOfDay + currentTime,
         end_at: startOfDay + endTime,
       };
-
+      //Event와 겹치는 TimeSlot은 생성하지 않도록 isOverlap 변수를 사용하여 체크
       let isOverlap = false;
 
+      //이벤트 목록 순회
       for (const event of events) {
         const eventStartTime = event.begin_at;
         const eventEndTime = event.end_at || eventStartTime + 3600; //1시간
@@ -64,7 +58,7 @@ function generateTimeSlots(
           break;
         }
       }
-
+      //겹치지 않을 경우, closeInterval[0]까지 반복
       if (!isOverlap) {
         timeSlots.push(timeSlot);
       }
@@ -84,10 +78,11 @@ export function getTimeSlots({
   timezoneIdentifier,
 }: GetTimeSlotsParams): DayTimeTable[] {
   const dayTimeTables: DayTimeTable[] = [];
+  //DayTimeTable빈 배열 생성
 
   const timezone = moment.tz(timezoneIdentifier);
 
-  // Read workhours.json and parse it as an array of WorkHour objects
+  // workhours.json event.json 파일 읽기
   const workHours: { [key: string]: WorkHour } = {};
 
   JSON.parse(fs.readFileSync("./json/workhours.json", "utf-8")).forEach(
@@ -95,29 +90,24 @@ export function getTimeSlots({
       workHours[workHour.key] = workHour;
     }
   );
-  console.log("@@@@@@@@@@@@@" + workHours);
-  // Read events.json and parse it as an array of Event objects
+
   const events: Event[] = JSON.parse(
     fs.readFileSync("./json/events.json", "utf-8")
   );
   //console.log("=====================" + events);
+  //days 일수만큼 반복 , 해당 일자의 시작 시간으로 지정
   for (let dayModifier = 0; dayModifier < days; dayModifier++) {
-    //const startOfDay = startDayIdentifier + dayModifier * 24 * 60 * 60;
-    //const day = moment.unix(startOfDay).tz(timezoneIdentifier);
     const day = timezone.clone().add(dayModifier, "days").startOf("day");
-
+    //isoWeekday() 1부터 7까지의 값을 반환
     const startOfDay = day.unix();
     const weekday = day.isoWeekday();
-    const isDayOff = false; // TODO: Implement a way to check if it's a day off
+    const isDayOff = false; // 휴무일 off
     let timeSlots: TimeSlot[] = [];
 
     //const isDayOff = day.isoWeekday() === 6 || day.isoWeekday() === 7;
     if (!isDayOff && !isIgnoreWorkhour) {
       // 해당 요일의 근무시간 가져오기
       console.log("****************1");
-      const dayWorkHours = Object.values(workHours).filter((workHour) => {
-        return workHour.weekday === weekday;
-      });
 
       timeSlots = generateTimeSlots(
         startOfDay,

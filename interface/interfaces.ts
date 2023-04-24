@@ -1,24 +1,22 @@
-export interface RequestBody {
-  start_day_identifier: string;
-  timezone_identifier: string;
-  service_duration: number;
+export interface GetTimeSlotsParams {
+  startDayIdentifier: string;
   days?: number;
-  timeslot_interval?: number;
-  is_ignore_schedule?: boolean;
-  is_ignore_workhour?: boolean;
+  serviceDuration: number;
+  timeSlotInterval: number;
+  isIgnoreSchedule?: boolean;
+  isIgnoreWorkhour?: boolean;
+  timezoneIdentifier: string;
 }
-
-export interface ResponseBody {
+export interface Response {
   start_of_day: number;
   day_modifier: number;
   is_day_off: boolean;
   timeslots: TimeSlot[];
 }
 
-export interface DayTimeTable extends ResponseBody {
+export interface DayTimeTable extends Response {
   timeslots: TimeSlot[];
 }
-
 export interface TimeSlot {
   begin_at: number;
   end_at: number;
