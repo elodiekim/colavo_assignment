@@ -46,7 +46,7 @@ function generateTimeSlots(
       //이벤트 목록 순회
       for (const event of events) {
         const eventStartTime = event.begin_at;
-        const eventEndTime = event.end_at || eventStartTime + 3600; //1시간
+        const eventEndTime = event.end_at;
         const timeSlotStartTime = timeSlot.begin_at;
         const timeSlotEndTime = timeSlot.end_at;
 
@@ -70,7 +70,7 @@ function generateTimeSlots(
 }
 export function getTimeSlots({
   startDayIdentifier,
-  days = 1,
+  days,
   serviceDuration,
   timeSlotInterval,
   isIgnoreSchedule = false,
@@ -96,18 +96,22 @@ export function getTimeSlots({
   );
   //console.log("=====================" + events);
   //days 일수만큼 반복 , 해당 일자의 시작 시간으로 지정
+  console.log("days: " + days);
   for (let dayModifier = 0; dayModifier < days; dayModifier++) {
     const day = timezone.clone().add(dayModifier, "days").startOf("day");
     //isoWeekday() 1부터 7까지의 값을 반환
     const startOfDay = day.unix();
+
+    console.log("startofDay: " + startOfDay);
     const weekday = day.isoWeekday();
+    console.log("######weekday: " + weekday);
     const isDayOff = false; // 휴무일 off
     let timeSlots: TimeSlot[] = [];
 
     //const isDayOff = day.isoWeekday() === 6 || day.isoWeekday() === 7;
     if (!isDayOff && !isIgnoreWorkhour) {
       // 해당 요일의 근무시간 가져오기
-      console.log("****************1");
+      //console.log("****************1");
 
       timeSlots = generateTimeSlots(
         startOfDay,
