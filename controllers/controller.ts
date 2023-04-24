@@ -1,6 +1,6 @@
 // controller.ts
 import { Request, Response } from "express";
-import { getTimeSlots } from "./service";
+import { getTimeSlots } from "../services/service";
 
 export function getTimeSlotsController(req: Request, res: Response) {
   const {
@@ -12,7 +12,7 @@ export function getTimeSlotsController(req: Request, res: Response) {
     is_ignore_workhour,
     timezone_identifier,
   } = req.body;
-  console.log(req.body);
+  //console.log(req.body);
   const dayTimeTables = getTimeSlots({
     startDayIdentifier: start_day_identifier,
     days,

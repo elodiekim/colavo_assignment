@@ -1,6 +1,11 @@
 //service.ts
 import moment from "moment-timezone";
-import { WorkHour, Event, DayTimeTable, TimeSlot } from "./interfaces";
+import {
+  WorkHour,
+  Event,
+  DayTimeTable,
+  TimeSlot,
+} from "../interface/interfaces";
 import fs from "fs";
 
 interface GetTimeSlotsParams {
@@ -85,15 +90,17 @@ export function getTimeSlots({
   // Read workhours.json and parse it as an array of WorkHour objects
   const workHours: { [key: string]: WorkHour } = {};
 
-  JSON.parse(fs.readFileSync("workhours.json", "utf-8")).forEach(
+  JSON.parse(fs.readFileSync("./json/workhours.json", "utf-8")).forEach(
     (workHour: WorkHour) => {
       workHours[workHour.key] = workHour;
     }
   );
-
+  console.log("@@@@@@@@@@@@@" + workHours);
   // Read events.json and parse it as an array of Event objects
-  const events: Event[] = JSON.parse(fs.readFileSync("events.json", "utf-8"));
-
+  const events: Event[] = JSON.parse(
+    fs.readFileSync("./json/events.json", "utf-8")
+  );
+  //console.log("=====================" + events);
   for (let dayModifier = 0; dayModifier < days; dayModifier++) {
     //const startOfDay = startDayIdentifier + dayModifier * 24 * 60 * 60;
     //const day = moment.unix(startOfDay).tz(timezoneIdentifier);
