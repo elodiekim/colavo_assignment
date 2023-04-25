@@ -28,8 +28,8 @@ export interface Event {
   updated_at: number;
 }
 export interface WorkHour {
-  open_interval: [number, number];
-  close_interval: [number, number];
+  open_interval: number;
+  close_interval: number;
   is_day_off: boolean;
   key: string;
   weekday: number;
